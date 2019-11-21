@@ -1,6 +1,8 @@
 package com.xxl.job.executor.core.config;
 
 import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
+import com.xxl.job.spring.jobrunner.JobDispathcer;
+import com.xxl.job.spring.jobrunner.TaskScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,6 +53,20 @@ public class XxlJobConfig {
         xxlJobSpringExecutor.setLogRetentionDays(logRetentionDays);
 
         return xxlJobSpringExecutor;
+    }
+
+    /**
+     * 扫描所有@JobRunnerImpl
+     * @return
+     */
+    @Bean
+    public TaskScanner taskScanner(){
+        return new TaskScanner();
+    }
+
+    @Bean
+    public JobDispathcer jobDispathcer(){
+        return new JobDispathcer();
     }
 
     /**
