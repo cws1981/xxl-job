@@ -4,6 +4,7 @@ package com.xxl.job.spring.jobrunner;
 import com.xxl.job.core.handler.IJobHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.AnnotationUtils;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -31,12 +32,15 @@ public class JobRunnerHolder {
         Method[] methods = clazz.getMethods();
         if (methods != null && methods.length > 0) {
             for (final Method method : methods) {
-                if (method.isAnnotationPresent(JobRunnerItem.class)) {
-                    JobRunnerItem jobRunnerItem = method.getAnnotation(JobRunnerItem.class);
+                JobRunnerItem jobRunnerItem;
+                if ( (jobRunnerItem = AnnotationUtils.findAnnotation(method,JobRunnerItem.class) )!= null) {
                     String jobId = jobRunnerItem.jobId();
                     if (jobId == null || "".equals(jobId)) {
-                        LOGGER.error(clazz.getName() + ":" + method.getName() + " " + JobRunnerItem.class.getName() + " shardValue can not be null");
+                        LOGGER.error(clazz.getName() + ":" + method.getName() + " " + JobRunnerItem.class.getName() + " jobId can not be null");
                         continue;
+                    }
+                    if (JOB_RUNNER_MAP.containsKey(jobId) ){
+                        throw new RuntimeException("jobId ["+ jobId +"] confilicts.");
                     }
                     JobRunnerHolder.add(jobId, JobRunnerBuilder.build(bean, method, method.getParameterTypes()));
                 }
